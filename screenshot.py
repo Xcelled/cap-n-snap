@@ -57,7 +57,7 @@ def captureDesktop():
 	minX, minY = min(g.x() for g in geos), min(g.y() for g in geos)
 	maxX, maxY = max(g.x() + g.width() for g in geos), max(g.y() + g.height() for g in geos)
 
-	return captureRegion(minX, minY, maxX - minX, maxY - minY)
+	return captureRegion(minX, minY, maxX - minX, maxY - minY, 0)
 #end def
 
 def captureWindow(windowId, captureWinBorders):
