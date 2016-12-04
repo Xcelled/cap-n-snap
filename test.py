@@ -9,5 +9,10 @@ import screenshot, plugins
 
 app = QApplication(sys.argv)
 
-plugs = plugins.PluginManager()
+class hostMock:
+	def registerDestination(self, dest):
+		print('Got new destination: {}: {}'.format(dest.name, dest.description))
+
+
+plugs = plugins.PluginManager(hostMock())
 plugs.load('plugins')

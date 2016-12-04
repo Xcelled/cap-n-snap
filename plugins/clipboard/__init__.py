@@ -1,9 +1,9 @@
 ''' cap n snap plugin to put the captured data on the clipboard '''
 
-from .clipboard import ClipboardPlugin
+from .clipboard import ClipboardDestination
 
-def getPlugin(*args, **kwargs):
-	return ClipboardPlugin(*args, **kwargs)
+def init(host):
+	host.registerDestination(ClipboardDestination())
 #enddef
 
 info = {

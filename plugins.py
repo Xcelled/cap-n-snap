@@ -1,11 +1,12 @@
 ''' Plugin manager '''
 
-import logging, pkgutil, importlib, sys, os.path
+import logging, importlib, sys, os, os.path
 log = logging.getLogger(__name__)
 
 class PluginManager:
-	def __init__(self):
+	def __init__(self, host):
 		self.plugins = []
+		self.host = host
 	#enddef
 
 	def _getPlugins(pluginFolder):
@@ -13,20 +14,15 @@ class PluginManager:
 		of (package name, `import packagename`)'''
 		importlib.invalidate_caches()
 
-		# todo: replace this with directories + zip
+		plugs = [os.path.splitext(p)[0] for p in os.listdir(pluginFolder)]
 
-		for _, pkgname, ispkg in pkgutil.walk_packages([pluginFolder]):
-			if not ispkg:
-				log.debug('Skipping {}'.format(pkgname))
-				continue
-			#endif
-
+		for pkgname in plugs:
 			log.debug('Loading package {}'.format(pkgname))
 			try:
 				module = importlib.reload(importlib.import_module(pkgname))
 				yield pkgname, module
 			except:
-				log.exception('Cannot load package{}'.format(pkgname))
+				log.exception('Cannot load package {}'.format(pkgname))
 			#endtry
 		#endfor
 	#enddef
@@ -38,20 +34,20 @@ class PluginManager:
 
 		self.plugins = [] # todo: unload these?
 
-		for pkgname, pi in PluginManager._getPlugins(pluginFolder):
+		for pkgname, pkg in PluginManager._getPlugins(pluginFolder):
 			try:
-				info = pi.info
-				plug = pi.getPlugin()
+				info = pkg.info
+				init = pkg.init
 				log.info('Loaded {} from {}'.format(info['name'], pkgname))
 			except:
 				log.exception('Failed to load package {}'.format(pkgname))
 				continue
 			#endtry
 			try:
-				plug.init(self)
-				self.plugins.append((pkgname, pi, plug))
+				init(self.host)
+				self.plugins.append((pkgname, pkg))
 			except:
-				log.exception('Failed to initialize {}'.format(pi.info['name']))
+				log.exception('Failed to initialize {}'.format(pkg.info['name']))
 			#endtry
 		#endfor
 	#enddef
