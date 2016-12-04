@@ -14,7 +14,16 @@ class PluginManager:
 		of (package name, `import packagename`)'''
 		importlib.invalidate_caches()
 
-		plugs = [os.path.splitext(p)[0] for p in os.listdir(pluginFolder)]
+		plugs = []
+		for (dirpath, dirnames, filenames) in os.walk(pluginFolder):
+			plugs.extend([d for d in dirnames if d[0] != '.'])
+			for fn in (f for f in filenames if f[0] != '.'):
+				abs = os.path.realpath(os.path.join(dirpath, fn))
+				if abs not in sys.path: sys.path.append(abs)
+				plugs.append(os.path.splitext(fn)[0])
+			#endfor
+			break
+		#endfor
 
 		for pkgname in plugs:
 			log.debug('Loading package {}'.format(pkgname))
