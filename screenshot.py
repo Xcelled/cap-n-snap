@@ -9,9 +9,9 @@ def captureScreen(screen):
 	''' Captures an entire screen '''
 
 	geo = screen.geometry()
-	shot = screen.grabWindow(0, geo.x(), geo.y(), geo.width(), geo.height())
+	snap = screen.grabWindow(0, geo.x(), geo.y(), geo.width(), geo.height())
 
-	return shot.toImage()
+	return snap.toImage()
 #end def
 
 def captureRegion(x, y, width, height, winId = 0):
@@ -33,13 +33,13 @@ def captureRegion(x, y, width, height, winId = 0):
 
 	for screen in screens:
 		geo = screen.geometry()
-		shot = screen.grabWindow(winId, geo.x(), geo.y(), geo.width(), geo.height())
+		snap = screen.grabWindow(winId, geo.x(), geo.y(), geo.width(), geo.height())
 
 		# determine the area to copy
 		toCopy = geo.intersected(region)
 
 		# Composite it onto the final
-		painter.drawPixmap(toCopy.x() + offsetX, toCopy.y() + offsetY, shot.copy(toCopy))
+		painter.drawPixmap(toCopy.x() + offsetX, toCopy.y() + offsetY, snap.copy(toCopy))
 	#end for
 
 	painter.end()
