@@ -62,19 +62,22 @@ class OccultingRubberband(QGraphicsView):
 		self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 		self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
+		self.selectionView = QGraphicsItemGroup()
+		self.theScene.addItem(self.selectionView)
+
 		self.occulting = [QGraphicsRectItem() for i in range(4)]
 		for o in self.occulting:
 			o.setBrush(QBrush(occultColor))
 			o.setPen(QPen(Qt.NoPen))
 			o.setCursor(Qt.CrossCursor)
-			self.theScene.addItem(o)
+			self.selectionView.addToGroup(o)
 		#endfor
 
 		self.lines = [QGraphicsLineItem() for i in range(4)]
 		for l, cursor in zip(self.lines, [Qt.SizeHorCursor, Qt.SizeVerCursor]*2):
 			l.setPen(QPen(lineColor, 2))
 			l.setCursor(cursor)
-			self.theScene.addItem(l)
+			self.selectionView.addToGroup(l)
 		#endfor
 
 		self.corners = [QGraphicsRectItem() for i in range(4)]
@@ -82,12 +85,26 @@ class OccultingRubberband(QGraphicsView):
 			c.setBrush(QBrush(occultColor))
 			c.setPen(QPen(lineColor, 2))
 			c.setCursor(cursor)
-			self.theScene.addItem(c)
+			self.selectionView.addToGroup(c)
 		#endfor
 
+		# Displayed when there's no selection
+
+		self.noSelectionHighlight = QGraphicsRectItem()
+		self.noSelectionHighlight.setCursor(Qt.CrossCursor)
+		self.noSelectionHighlight.setPen(QPen(Qt.NoPen))
+		self.noSelectionHighlight.setBrush(QBrush(occultColor))
+		self.theScene.addItem(self.noSelectionHighlight)
+
+		self.noSelectionOverlay = self.theScene.createItemGroup([self.noSelectionHighlight])
+		
+		# This is so we get a cross cursor while drawing
+		# without this, the rubber band's resize cursors take over
+		# as the user is drawing initially.
 		self.drawingOverlay = QGraphicsRectItem()
 		self.drawingOverlay.setCursor(Qt.CrossCursor)
 		self.drawingOverlay.setPen(QPen(Qt.NoPen))
+		self.theScene.addItem(self.drawingOverlay)
 
 		self.setScene(self.theScene)
 		self.handleSize = handleSize
@@ -95,8 +112,9 @@ class OccultingRubberband(QGraphicsView):
 	#enddef
 
 	def selection(self):
-		if self.selectionStart is None: return None
-		if self.selectionStart == self.selectionEnd: return None
+		if self.selectionStart is None or self.selectionEnd is None: return None
+		if self.selectionStart.x() == self.selectionEnd.x(): return None
+		if self.selectionStart.y() == self.selectionEnd.y(): return None
 
 		selRect = QRectF(QPointF(self.selectionStart), QPointF(self.selectionEnd)).normalized()
 
@@ -107,12 +125,13 @@ class OccultingRubberband(QGraphicsView):
 		geo = self.geometry()
 
 		self.drawingOverlay.setRect(QRectF(geo))
+		self.noSelectionHighlight.setRect(QRectF(geo))
 
 		selection = self.selection()
 
-
 		if selection is None:
-			self.occulting[0].setRect(QRectF(geo))
+			self.selectionView.setVisible(False)
+			self.noSelectionOverlay.setVisible(True)
 		else:
 			leftBound = selection.x() - geo.x()
 			rightBound = leftBound + selection.width()
@@ -142,6 +161,10 @@ class OccultingRubberband(QGraphicsView):
 			top.setRect(rightBound - self.handleSize, topBound, self.handleSize, self.handleSize)
 			right.setRect(rightBound - self.handleSize, bottomBound - self.handleSize, self.handleSize, self.handleSize)
 			bottom.setRect(leftBound, bottomBound - self.handleSize, self.handleSize, self.handleSize)
+
+			self.selectionView.setVisible(True)
+			self.noSelectionOverlay.setVisible(False)
+
 		#endif
 	#enddef
 
@@ -155,7 +178,7 @@ class OccultingRubberband(QGraphicsView):
 		self.moving = self.drawing = self.resizing = False
 
 		if any(r.contains(pos) for r in self.occulting):
-			self.theScene.addItem(self.drawingOverlay)
+			self.drawingOverlay.setVisible(True)
 			self.drawingOverlay.setZValue(10)
 			self.drawing = True
 			self.selectionStart = self.selectionEnd = pos
@@ -172,7 +195,7 @@ class OccultingRubberband(QGraphicsView):
 	#enddef
 
 	def mouseReleaseEvent(self, e):
-		if self.drawing: self.theScene.removeItem(self.drawingOverlay)
+		if self.drawing: self.drawingOverlay.setVisible(False)
 
 		self.moving = self.drawing = self.resizing = False
 
