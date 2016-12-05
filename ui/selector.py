@@ -31,7 +31,10 @@ class Selector(QDialog):
 			'Select an area using the mouse.\nPress Enter to take a screenshot or Esc to exit.',
 			 QColor(28,28,28,220), QColor(150,150,150,240))
 		self.rubber.setGeometry(0, 0, width, height)
+		self.selected = None
 	#enddef
+
+	def selection(self): return self.selected
 
 	def showEvent(self, e):
 		self.raise_()
@@ -43,8 +46,13 @@ class Selector(QDialog):
 
 	def keyReleaseEvent(self, event):
 		if event.key() == Qt.Key_Escape:
+			self.selected = None
 			self.close()
-			raise Exception()
+		elif event.key() == Qt.Key_Enter:
+			self.selected = self.rubber.selection()
+			if self.selected:
+				self.close()
+			#endif
 		#endif
 
 		super().keyReleaseEvent(event)

@@ -76,6 +76,13 @@ def captureWindow(windowId, captureWinBorders):
 def captureRegion():
 	x, y, w, h = _getDesktopBounds()
 	pixmap = _captureRegion(x, y, w, h, 0)
+	
 	sel = Selector(x, y, w, h, pixmap)
 	sel.exec_()
+
+	toCopy = sel.selection()
+
+	if toCopy is None: return None
+
+	return pixmap.copy(toCopy).toImage()
 #enddef
