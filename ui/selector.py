@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QCoreApplication, QRect, QRectF, QPointF, Qt
-from PyQt5.QtGui import QColor, QBrush, QPen
+from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 def _(*args, **kwargs): return QCoreApplication.translate('Selector', *args, **kwargs)
@@ -27,7 +27,9 @@ class Selector(QDialog):
 		self.view.setSceneRect(0, 0, width, height)
 
 		self.bounds = QRect(x, y, width, height)
-		self.rubber = OccultingRubberband(self, QColor(100,100,100,140), QColor('red'), 15)
+		self.rubber = OccultingRubberband(self, QColor(100,100,100,140), QColor('red'), 15,
+			'Select an area using the mouse.\nPress Enter to take a screenshot or Esc to exit.',
+			 QColor(28,28,28,220), QColor(150,150,150,240))
 		self.rubber.setGeometry(0, 0, width, height)
 	#enddef
 
@@ -51,11 +53,11 @@ class Selector(QDialog):
 
 class OccultingRubberband(QGraphicsView):
 	''' Implementation of a rubber band that grays out area around the selection '''
-	def __init__(self, parent, occultColor, lineColor, handleSize):
+	def __init__(self, parent, occultColor, lineColor, handleSize, helpText, textBgColor, textColor):
 		super().__init__(parent)
 		self.setCursor(Qt.OpenHandCursor)
 
-		self.selectionStart, self.selectionEnd = QPointF(100, 100), QPointF(300, 300) # None
+		self.selectionStart, self.selectionEnd = None, None
 
 		self.theScene = QGraphicsScene(self)
 		self.setStyleSheet("QGraphicsView { border-style: none; background-color: transparent;}")
@@ -89,14 +91,38 @@ class OccultingRubberband(QGraphicsView):
 		#endfor
 
 		# Displayed when there's no selection
-
 		self.noSelectionHighlight = QGraphicsRectItem()
 		self.noSelectionHighlight.setCursor(Qt.CrossCursor)
 		self.noSelectionHighlight.setPen(QPen(Qt.NoPen))
 		self.noSelectionHighlight.setBrush(QBrush(occultColor))
 		self.theScene.addItem(self.noSelectionHighlight)
 
-		self.noSelectionOverlay = self.theScene.createItemGroup([self.noSelectionHighlight])
+		helpTextItem = QGraphicsTextItem()
+		helpFont = QFont()
+		helpFont.setPointSize(20)
+		helpTextItem.setFont(helpFont)
+		helpTextItem.setDefaultTextColor(textColor)
+		helpTextItem.setTextWidth(1000) # TODO: Get this from the geometry
+		helpTextItem.document().setDefaultTextOption(QTextOption(Qt.AlignCenter))
+		helpTextItem.setPlainText(helpText)
+
+		helpRect = helpTextItem.boundingRect()
+
+		helpRectPath = QPainterPath()
+		helpRectPath.addRoundedRect(helpRect.x() - 10, helpRect.y() - 10, helpRect.width() + 20, helpRect.height() + 20, 10, 10)
+
+		helpRectItem = QGraphicsPolygonItem()
+		helpRectItem.setPolygon(helpRectPath.toFillPolygon(QTransform()))
+		helpRectItem.setBrush(textBgColor)
+
+		self.theScene.addItem(helpRectItem)
+		self.theScene.addItem(helpTextItem)
+
+		self.helpOverlay = self.theScene.createItemGroup([helpTextItem, helpRectItem])
+		self.helpOverlay.setZValue(2)
+		helpTextItem.setZValue(1)
+
+		self.noSelectionOverlay = self.noSelectionHighlight # in case we want to add more here later
 		
 		# This is so we get a cross cursor while drawing
 		# without this, the rubber band's resize cursors take over
@@ -123,9 +149,6 @@ class OccultingRubberband(QGraphicsView):
 
 	def _updateLayout(self):
 		geo = self.geometry()
-
-		self.drawingOverlay.setRect(QRectF(geo))
-		self.noSelectionHighlight.setRect(QRectF(geo))
 
 		selection = self.selection()
 
@@ -169,7 +192,15 @@ class OccultingRubberband(QGraphicsView):
 	#enddef
 
 	def resizeEvent(self, e):
-		self.setSceneRect(QRectF(self.geometry()))
+		geo = QRectF(self.geometry())
+		self.setSceneRect(geo)
+		self.drawingOverlay.setRect(geo)
+		self.noSelectionHighlight.setRect(geo)
+
+		hr = self.helpOverlay.boundingRect()
+		hr.moveCenter(geo.center())
+		self.helpOverlay.setPos(hr.x(), hr.y())
+
 		self._updateLayout()
 	#enddef
 
@@ -177,7 +208,8 @@ class OccultingRubberband(QGraphicsView):
 		pos = e.pos()
 		self.moving = self.drawing = self.resizing = False
 
-		if any(r.contains(pos) for r in self.occulting):
+		if self.selection() is None or any(r.contains(pos) for r in self.occulting):
+			self.helpOverlay.setVisible(False)
 			self.drawingOverlay.setVisible(True)
 			self.drawingOverlay.setZValue(10)
 			self.drawing = True
@@ -195,7 +227,8 @@ class OccultingRubberband(QGraphicsView):
 	#enddef
 
 	def mouseReleaseEvent(self, e):
-		if self.drawing: self.drawingOverlay.setVisible(False)
+		if self.drawing:
+			self.drawingOverlay.setVisible(False)
 
 		self.moving = self.drawing = self.resizing = False
 
