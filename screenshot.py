@@ -2,8 +2,9 @@
 import platform
 
 from PyQt5.QtCore import QRect
-from PyQt5.QtGui import QColor, QImage, QPainter
+from PyQt5.QtGui import QColor, QImage, QPainter, QPixmap
 from PyQt5.QtWidgets import QApplication
+from ui.selector import Selector
 
 def captureScreen(screen):
 	''' Captures an entire screen '''
@@ -14,7 +15,7 @@ def captureScreen(screen):
 	return snap.toImage()
 #end def
 
-def captureRegion(x, y, width, height, winId = 0):
+def _captureRegion(x, y, width, height, winId = 0):
 	''' Captures a region '''
 
 	region = QRect(x, y, width, height)
@@ -24,7 +25,7 @@ def captureRegion(x, y, width, height, winId = 0):
 	# How much to reposition each image so the whole thing is based at 0, 0
 	offsetX, offsetY = -x, -y
 
-	final = QImage(width, height, QImage.Format_ARGB32)
+	final = QPixmap(width, height)
 	final.fill(QColor(0, 0, 0, 255))
 
 	painter = QPainter()
@@ -47,9 +48,7 @@ def captureRegion(x, y, width, height, winId = 0):
 	return final
 #end def
 
-def captureDesktop():
-	''' Captures the whole desktop '''
-
+def _getDesktopBounds():
 	screens = QApplication.screens()
 
 	# Calculate the bounds of the final image
@@ -57,7 +56,15 @@ def captureDesktop():
 	minX, minY = min(g.x() for g in geos), min(g.y() for g in geos)
 	maxX, maxY = max(g.x() + g.width() for g in geos), max(g.y() + g.height() for g in geos)
 
-	return captureRegion(minX, minY, maxX - minX, maxY - minY, 0)
+	return minX, minY, maxX - minX, maxY - minY
+#enddef
+
+def captureDesktop():
+	''' Captures the whole desktop '''
+
+	x, y, w, h = _getDesktopBounds()
+
+	return _captureRegion(x, y, w, h, 0).toImage()
 #end def
 
 def captureWindow(windowId, captureWinBorders):
@@ -65,3 +72,17 @@ def captureWindow(windowId, captureWinBorders):
 
 	raise NotImplementedError()
 #end def
+
+def captureRegion():
+	x, y, w, h = _getDesktopBounds()
+	pixmap = _captureRegion(x, y, w, h, 0)
+	
+	sel = Selector(x, y, w, h, pixmap)
+	sel.exec_()
+
+	toCopy = sel.selection()
+
+	if toCopy is None: return None
+
+	return pixmap.copy(toCopy).toImage()
+#enddef
