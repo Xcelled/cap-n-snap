@@ -32,10 +32,13 @@ Hotkeys require pywin32.
 
 ### Linux-specific
 
-To enable hotkeys, Linux users need the python-xlib package from pip.
-`sudo -H pip3 install python-xlib`
+To enable hotkeys, Linux users need the xcffib package from pip.
+`sudo apt-get install libxcb-render0-dev libffi-dev && sudo -H pip3 install xcffib`
 
-Alternatively, you can use [xcffib](https://github.com/tych0/xcffib).
+You also need xpybutil:
+1. `git clone https://github.com/BurntSushi/xpybutil.git`
+2. `cd xpybutil`
+3. `sudo python setup.py install`
 
 # Running
 
