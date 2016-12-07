@@ -1,24 +1,43 @@
-# cap-n-snap
+# Cap'n Snap
+
 Cross-platform quick-share utility similar to puush or screencloud.
 
 #Features:
+
 - lol I take screenshots
 
-# Prerequisites
+# Installing
+
+Use the `install.sh` script to install Cap'n Snap automatically
+
+## Required packages
+
 - Python3
-- Qt 5
+- Qt5
+- PyQt5*
 
-Linux probably has these already.
+*PyQt5 can be obtained from at least two different sources on Ubuntu:
 
-# Python packages
+- `sudo apt-get install python3-pyqt5`
+- `sudo -H pip3 install PyQt5`
+
+## Python packages
+
 Listed in requirements.txt
 
 `sudo -H pip3 install -r requirements.txt`
 
+### Linux-specific
+
+To enable hotkeys, Linux users need the python-xlib package from pip.
+`sudo -H pip3 install python-xlib`
+
 # Running
+
 `python3 main.py`
 
 #TODO:
+
 - UI
 - Settings
 - Plugins

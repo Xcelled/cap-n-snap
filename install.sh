@@ -29,7 +29,9 @@ fi
 # Try to install repo packages.
 if [ -n "$apt" ]; then
 	# This is for Ubuntu. If debian's different then well...
+	# TODO: If we already have PyQt from pip, no need to get it again.
 	$apt install qtbase5-private-dev python3-pyqt5 pyqt5-dev # libqxt-dev ??
+	# TODO: If pygt5 package not found, try pip?
 elif [ -n "$yum" ]; then
 	echo "yum is not currently supported"
 	$(exit 1)
@@ -47,21 +49,18 @@ if [ $? -ne 0 ]; then
 	found=
 fi
 
+# Install python-xlib (linux specific)
+$pip install python-xlib
+if [ $? -ne 0 ]; then
+	echo "ERROR: Could not install python-xlib"
+	exit 2
+fi
+
 # Install pip dependencies.
-$pip install PyGlobalShortcut
+$pip install -r requirements.txt
 if [ $? -ne 0 ]; then
 	echo "ERROR: Could not install necessary packages."
 	exit 2
-elif [ $found ]; then
-	# If we're using system packages, we don't want the pip version of PyQt5 that PyGlobalShortcut might install.
-	$pip remove PyQt5
-fi
-
-# Test import.
-python3 -c 'import pygs'
-if [ $? -ne 0 ]; then
-	echo "ERROR: PyGlobalShortcut not importing correctly, see error output above for details."
-	exit 3
 fi
 
 # TODO: Install this.
