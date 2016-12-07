@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
+
+# Taken with love from sorin @ http://stackoverflow.com/a/1336640/1163742
+
 import logging
 # now we patch Python code to add color support to logging.StreamHandler
 def add_coloring_to_emit_windows(fn):
