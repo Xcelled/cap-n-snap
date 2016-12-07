@@ -27,10 +27,15 @@ Listed in requirements.txt
 
 `sudo -H pip3 install -r requirements.txt`
 
+### Windows-specific
+Hotkeys require pywin32.
+
 ### Linux-specific
 
 To enable hotkeys, Linux users need the python-xlib package from pip.
 `sudo -H pip3 install python-xlib`
+
+Alternatively, you can use [xcffib](https://github.com/tych0/xcffib).
 
 # Running
 
