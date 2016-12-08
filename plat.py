@@ -42,6 +42,6 @@ elif WINDOWS:
 		Supports.Hotkeys = False
 	#endif
 else:
-	log.warn('Hotkeys are unsupported on mac')
+	log.warn('Hotkeys are not supported on your system')
 	Supports.Hotkeys = False
 #endif
