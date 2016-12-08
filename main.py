@@ -14,7 +14,7 @@ import sys, os, plat
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QApplication
 
-if plat.Supports.Hotkeys: import hotkeys
+if plat.Supports.hotkeys: import hotkeys
 
 # For easier usage calculate the path relative to here.
 here = os.path.abspath(os.path.dirname(__file__))
@@ -22,7 +22,7 @@ here = os.path.abspath(os.path.dirname(__file__))
 app = QApplication(sys.argv)
 
 # Add kill-switch for development testing
-if DEBUG and plat.Supports.Hotkeys:
+if DEBUG and plat.Supports.hotkeys:
 	hotkeys.default.register('ctrl+shift+k', lambda e:app.exit())
 #endif
 
