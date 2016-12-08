@@ -36,6 +36,7 @@ To enable hotkeys, Linux users need the xcffib package from pip.
 `sudo apt-get install libxcb-render0-dev libffi-dev && sudo -H pip3 install xcffib`
 
 You also need xpybutil:
+
 1. `git clone https://github.com/BurntSushi/xpybutil.git`
 2. `cd xpybutil`
 3. `sudo python setup.py install`
