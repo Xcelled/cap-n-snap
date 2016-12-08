@@ -2,13 +2,23 @@
 import logging
 log = logging.getLogger(__name__)
 
-import sys, importlib
+import platform, importlib
+
+log.info('{} {}'.format(platform.python_implementation(), platform.python_version()))
+log.info('Running on {} {}'.format(platform.platform(), platform.uname()))
 
 LINUX = MAC = WINDOWS = False
-plat = sys.platform.lower()
+plat = platform.system().lower()
 if plat.startswith('win'): WINDOWS = True
 elif plat.startswith('darwin'): MAC = True
-else: LINUX = True
+elif plat.startswith('linux'): LINUX = True
+
+if True not in (LINUX, MAC, WINDOWS):
+	log.warn('Unsupported platform "{}"'.format(plat))
+else:
+	log.info('Detected OS as {}'.format('Linux' if LINUX else ('Windows' if Windows else 'Mac')))
+
+#endif
 
 # check OS specific libs
 def importOrWarn(libname):

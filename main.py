@@ -10,12 +10,9 @@ log = logging.getLogger(__name__)
 
 if DEBUG: logging.getLogger().setLevel(logging.DEBUG)
 
-
 import sys, os, plat
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QApplication
-
-log.info('Detected OS as {}'.format('Linux' if plat.LINUX else ('Windows' if plat.Windows else 'Mac')))
 
 if plat.Supports.Hotkeys: import hotkeys
 
