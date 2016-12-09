@@ -2,7 +2,7 @@ import logging
 log = logging.getLogger(__name__)
 
 import plat
-from PyQt5.QtGui import QRect
+from PyQt5.QtCore import QRect
 
 if plat.LINUX:
 	# X11 stuff for getting windows
