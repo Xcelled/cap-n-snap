@@ -33,7 +33,7 @@ class HostMock:
 pm = PluginManager(HostMock())
 pm.load(os.path.join(here, 'plugins'))
 
-config.default.applyHotkeys()
+hotkeys.default.load()
 
 app.exec_()
 config.default.save()
