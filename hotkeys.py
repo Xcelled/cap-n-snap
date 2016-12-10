@@ -73,7 +73,7 @@ class HotkeyManager:
 		''' Add a new hotkey with with a command name intended to be saved to the config '''
 		hks = config.default.get('hotkeys', {})
 		if seq in hks:
-			logging.warning('Reassigning existing sequence %s', seq)
+			log.warning('Reassigning existing sequence %s', seq)
 		#endif
 
 		hks[seq] = command
@@ -83,7 +83,7 @@ class HotkeyManager:
 		if command in self.commands:
 			self.register(seq, self.commands[command])
 		else:
-			logging.warning('Saved hotkey %s to unknown command %s', seq, command)
+			log.warning('Saved hotkey %s to unknown command %s', seq, command)
 		#endif
 	#enddef
 
@@ -103,7 +103,7 @@ class HotkeyManager:
 			if command in self.commands:
 				self.register(hotkey, self.commands[command])
 			else:
-				logging.error('Tried to register hotkey %s to unknown command %s', hotkey, command)
+				log.error('Tried to register hotkey %s to unknown command %s', hotkey, command)
 			#endif
 		#endfor
 	#enddef
