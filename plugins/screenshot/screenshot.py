@@ -2,7 +2,7 @@
 from PyQt5.QtCore import QRect
 from PyQt5.QtGui import QColor, QImage, QPainter, QPixmap, QCursor
 from PyQt5.QtWidgets import QApplication
-from ui.selector import Selector
+from .selector import Selector
 import plat
 
 if plat.Supports.wintools: import wintools
