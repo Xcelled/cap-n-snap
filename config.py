@@ -5,9 +5,9 @@ from PyQt5.QtCore import QSettings
 log = logging.getLogger(__name__)
 
 class Config:
-	def __init__(self):
+	def __init__(self, filename=None):
 		# Get the config file location if one is specified.
-		self.filename = os.getenv('CAPNSNAP_CONFIG', None)
+		self.filename = filename or os.getenv('CAPNSNAP_CONFIG', None)
 		self.qsettings = QSettings("Cap-n_Snap", "Cap-n_Snap")
 
 		self.registrations = {
