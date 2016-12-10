@@ -10,7 +10,7 @@ log = logging.getLogger(__name__)
 
 if DEBUG: logging.getLogger().setLevel(logging.DEBUG)
 
-import sys, os, plat
+import sys, os, plat, config
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QApplication
 from plugins import PluginManager
@@ -33,4 +33,7 @@ class HostMock:
 pm = PluginManager(HostMock())
 pm.load(os.path.join(here, 'plugins'))
 
+hotkeys.default.load()
+
 app.exec_()
+config.default.save()
