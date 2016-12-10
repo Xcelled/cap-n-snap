@@ -1,19 +1,11 @@
 ''' Module containing screenshot functions '''
-import platform
-
 from PyQt5.QtCore import QRect
-from PyQt5.QtGui import QColor, QImage, QPainter, QPixmap
+from PyQt5.QtGui import QColor, QImage, QPainter, QPixmap, QCursor
 from PyQt5.QtWidgets import QApplication
 from ui.selector import Selector
+import plat
 
-def captureScreen(screen):
-	''' Captures an entire screen '''
-
-	geo = screen.geometry()
-	snap = screen.grabWindow(0, geo.x(), geo.y(), geo.width(), geo.height())
-
-	return snap.toImage()
-#end def
+if plat.Supports.wintools: import wintools
 
 def _captureRegion(x, y, width, height, winId = 0):
 	''' Captures a region '''
@@ -67,10 +59,28 @@ def captureDesktop():
 	return _captureRegion(x, y, w, h, 0).toImage()
 #end def
 
-def captureWindow(windowId, captureWinBorders):
-	if platform.lower().startswith('darwin'): captureWinBorders = True
+def captureScreen():
+	''' Captures the screen the mouse is currently on '''
+	num = QApplication.desktop().screenNumber(QCursor.pos())
+	geo = QApplication.screens()[num].geometry()
 
-	raise NotImplementedError()
+	return _captureRegion(geo.x(), geo.y(), geo.width(), geo.height(), 0).toImage()
+#enddef
+
+def captureWindow(windowId, captureWinBorders):
+	if not plat.Supports.wintools: raise NotImplementedError()
+
+	if plat.MAC: captureWinBorders = True
+
+	activeWin = wintools.getActiveWin()
+
+	if captureWinBorders:
+		# TODO: If KDE...
+		geo = wintools.getWinGeomtry(activeWin)
+		return _captureRegion(geo.x(), geo.y(), geo.width(), geo.height(), 0).toImage()
+	#endif
+
+	return QApplication.primaryScreen().grabWindow(activeWin).toImage()
 #end def
 
 def captureRegion():

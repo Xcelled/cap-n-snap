@@ -13,6 +13,7 @@ if DEBUG: logging.getLogger().setLevel(logging.DEBUG)
 import sys, os, plat
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QApplication
+from plugins import PluginManager
 
 if plat.Supports.hotkeys: import hotkeys
 
@@ -25,5 +26,11 @@ app = QApplication(sys.argv)
 if DEBUG and plat.Supports.hotkeys:
 	hotkeys.default.register('ctrl+shift+k', lambda e:app.exit())
 #endif
+
+class HostMock:
+	def registerDestination(self, x): pass
+
+pm = PluginManager(HostMock())
+pm.load(os.path.join(here, 'plugins'))
 
 app.exec_()
