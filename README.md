@@ -56,7 +56,7 @@ You also need xpybutil:
 
 `python3 main.py`
 
-# Rational
+# Rationale
 
 Why did we decide to develop Yet Another™ screenshot capturing/upload tool?
 
