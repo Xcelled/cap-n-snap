@@ -10,15 +10,46 @@ class Config:
 		self.filename = filename or os.getenv('CAPNSNAP_CONFIG', None)
 		self.qsettings = QSettings("Cap-n_Snap", "Cap-n_Snap")
 
-		self.registrations = {
-			'commands': {}
+		self.hooks = {
+			'beforeLoad': [],
+			'afterLoad': [],
+			'beforeSave': [],
+			'afterSave': [],
 		}
-
-		self.load(hotkeys=False)
+		self.load()
 	#enddef
 
-	def load(self, hotkeys=True):
-		if hotkeys: self.removeHotkeys()
+	def execHooks(self, name):
+		for (hook, userdata) in self.hooks[name]:
+			hook(userdata)
+		#endfor
+	#enddef
+
+	def hook(self, hn, hook, userdata=None):
+		self.hooks[hn].append((hook, userdata))
+	#enddef
+
+	def unhook(self, hn, hook):
+		found = False
+		for i, (fun, userdata) in enumerate(self.hooks[hn]):
+			if fun == hook:
+				found = True
+				break
+			#endif
+		#endfor
+
+		if found:
+			self.hooks[hn].pop(i)
+		#endif
+	#enddef
+
+	def beforeLoad(self, hook, userdata=None): self.hook('beforeLoad', hook, userdata)
+	def afterLoad(self, hook, userdata=None): self.hook('afterLoad', hook, userdata)
+	def beforeSave(self, hook, userdata=None): self.hook('beforeSave', hook, userdata)
+	def afterSave(self, hook, userdata=None): self.hook('afterSave', hook, userdata)
+
+	def load(self):
+		self.execHooks('beforeLoad')
 		if self.filename:
 			log.debug('Loading config from %s', self.filename)
 			self.config = json.load(self.filename)
@@ -27,10 +58,11 @@ class Config:
 			self.qsettings.sync()
 			self.config = json.loads(self.qsettings.value('settings', '{}'))
 		#endif
-		if hotkeys: self.applyHotkeys()
+		self.execHooks('afterLoad')
 	#enddef
 
 	def save(self):
+		self.execHooks('beforeSave')
 		if self.filename:
 			log.debug('Saving config to %s', self.filename)
 			json.dump(self.filename, self.config)
@@ -39,42 +71,17 @@ class Config:
 			self.qsettings.setValue('settings', json.dumps(self.config))
 			self.qsettings.sync()
 		#endif
+		self.execHooks('afterSave')
 	#enddef
 
-	def registerCommand(self, name, function):
-		''' Register a command for use by a hotkey '''
-		cmds = self.registrations['commands']
-		if name in cmds:
-			log.warning('Registering over existing command name %s', name)
-		#endif
-
-		cmds[name] = function
+	def get(self, key, default=None):
+		return self.config.get(key, default)
 	#enddef
 
-	def applyHotkeys(self):
-		''' Apply all hotkeys defined in the config '''
-		if not plat.Supports.hotkeys: return
-
-		cmds = self.registrations['commands']
-		for hotkey, command in self.config.get('hotkeys', {}).items():
-			if command in cmds:
-				hotkeys.default.register(hotkey, cmds[command])
-			else:
-				logging.error('Tried to register hotkey %s to unknown command %s', hotkey, command)
-			#endif
-		#endfor
+	def set(self, key, value):
+		self.config[key] = value
+		self.save()
 	#enddef
-
-	def removeHotkeys(self):
-		''' Remove all hotkeys defined in the config '''
-		if not plat.Supports.hotkeys: return
-
-		cmds = self.registrations['commands']
-		for hotkey, command in self.config.get('hotkeys', {}).items():
-			hotkeys.default.unregister(hotkey)
-		#endfor
-	#enddef
-
 #endclass
 
 default = Config()
