@@ -35,7 +35,7 @@ def importOrWarn(libname):
 
 class Supports:
 	hotkeys = True
-	windowCapture = False
+	windowTools = True
 #endclass
 
 if LINUX:
@@ -44,16 +44,19 @@ if LINUX:
 	if not xlib or not xpybutil:
 		log.warn('Hotkeys are disabled.')
 		Supports.hotkeys = False
-	#endif
+		log.warn('Window-dependent functions are disabled.')
+		Supports.windowTools = False
+	#endi
 elif WINDOWS:
 	pywin32 = importOrWarn('pywin32')
 	if not pywin32:
-		log.warn('Hotkeys are disabled')
+		log.warn('Hotkeys are disabled.')
 		Supports.hotkeys = False
 	#endif
 else:
-	log.warn('Hotkeys are not supported on your system')
+	log.warn('Hotkeys are not supported on your system.')
 	Supports.hotkeys = False
+	log.warn('Window-dependent functions are not supported on your system.')
 #endif
 
 feats = dict((attr, getattr(Supports, attr)) for attr in dir(Supports) if not callable(getattr(Supports,attr)) and not attr.startswith("__"))
