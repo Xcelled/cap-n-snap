@@ -144,7 +144,7 @@
        <string>Update now</string>
       </property>
      </widget>
-     <widget class="QCheckBox" name="checkBox_2">
+     <widget class="QCheckBox" name="auto_update">
       <property name="geometry">
        <rect>
         <x>270</x>
@@ -249,7 +249,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QCheckBox" name="checkBox">
+       <widget class="QCheckBox" name="system_locale">
         <property name="toolTip">
          <string>Try to use the system locale first, but if it doesn't exist or fails for any message, use the language specified above</string>
         </property>
@@ -263,11 +263,6 @@
       </item>
      </layout>
     </widget>
-    <zorder>about</zorder>
-    <zorder>widget_3</zorder>
-    <zorder>verticalLayoutWidget</zorder>
-    <zorder>verticalLayoutWidget_2</zorder>
-    <zorder>formLayoutWidget_3</zorder>
    </widget>
    <widget class="QWidget" name="tab_2">
     <attribute name="title">
@@ -538,7 +533,7 @@
       </rect>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton">
+    <widget class="QPushButton" name="plugin_settings">
      <property name="geometry">
       <rect>
        <x>10</x>
@@ -551,7 +546,7 @@
       <string>Settings...</string>
      </property>
     </widget>
-    <widget class="QPushButton" name="pushButton_2">
+    <widget class="QPushButton" name="install_plugins">
      <property name="geometry">
       <rect>
        <x>110</x>
@@ -625,11 +620,6 @@
        <string/>
       </property>
      </widget>
-     <zorder>label_5</zorder>
-     <zorder>plugin_current_version</zorder>
-     <zorder>listView</zorder>
-     <zorder>label_6</zorder>
-     <zorder>plugin_latest_version</zorder>
     </widget>
    </widget>
   </widget>
