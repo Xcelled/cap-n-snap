@@ -69,7 +69,7 @@ We wanted something:
  - Extensible
  - Capable of more than just images
 
-Of the existing options, Screencloud came closest, but it was slow, only handled images, is written in C++ and was missing some other features besides. Additionally, bug reports and feature requests had been piling up for years on the repo, leading the project to feeling abandoned.
+Of the existing options, Screencloud came closest, but it was slow, only handled images, is written in C++, and was missing some other features besides. Additionally, bug reports and feature requests had been piling up for years on the repo, leading the project to feeling abandoned.
 
 So, we took the best parts of Screencloud and rewrote them to be even better. Then we used this as a base for creating Cap'n Snap.
 
