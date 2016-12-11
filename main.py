@@ -14,6 +14,7 @@ import sys, os, plat, config
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QApplication
 from plugins import PluginManager
+from host import Host
 
 if plat.Supports.hotkeys: import hotkeys
 
@@ -24,14 +25,12 @@ app = QApplication(sys.argv)
 
 # Add kill-switch for development testing
 if DEBUG and plat.Supports.hotkeys:
-	hotkeys.default.register('ctrl+shift+k', lambda:app.exit())
-	hotkeys.default.register('ctrl+shift+j', lambda:print('hi'))
+	hotkeys.default._bind('ctrl+shift+k', lambda:app.exit())
 #endif
 
-class HostMock:
-	def registerDestination(self, x): pass
+plugHost = Host()
 
-pm = PluginManager(HostMock())
+pm = PluginManager(plugHost)
 pm.load(os.path.join(here, 'plugins'))
 
 hotkeys.default.load()
