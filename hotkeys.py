@@ -8,14 +8,15 @@ from PyQt5.QtGui import QKeySequence
 
 import config
 
-modMap = zip(
+modMap = list(zip(
 	[Qt.ShiftModifier, Qt.ControlModifier, Qt.AltModifier, Qt.MetaModifier],
 	['shift'         , 'control'         , 'alt'         , 'super'        ]
-)
+))
 
 allMods = int(Qt.ShiftModifier | Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier)
 
 def seqToTuple(seq):
+	''' Converts a QKeySequence to system_hotkey's Tuple format '''
 	r = []
 	key = 0 if seq.isEmpty() else seq[0] & ~allMods
 	mods = 0 if seq.isEmpty() else seq[0] & allMods
@@ -48,7 +49,7 @@ class HotkeyManager:
 		except: pass
 		t = seqToTuple(seq)
 		log.debug('Registering hotkey {} => {}'.format(t, cb))
-		self.hk.register(t, callback=cb)
+		self.hk.register(t, callback=lambda e:cb())
 	#enddef
 
 	def unregister(self, seq):

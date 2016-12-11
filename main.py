@@ -24,7 +24,8 @@ app = QApplication(sys.argv)
 
 # Add kill-switch for development testing
 if DEBUG and plat.Supports.hotkeys:
-	hotkeys.default.register('ctrl+shift+k', lambda e:app.exit())
+	hotkeys.default.register('ctrl+shift+k', lambda:app.exit())
+	hotkeys.default.register('ctrl+shift+j', lambda:print('hi'))
 #endif
 
 class HostMock:
