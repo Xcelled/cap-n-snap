@@ -1,5 +1,5 @@
-import logging
-log = logging.getLogger(__name__)
+import loggingstyleadapter
+log = loggingstyleadapter.getLogger(__name__)
 
 from system_hotkey import SystemHotkey
 from collections import Counter
@@ -47,7 +47,7 @@ class HotkeyManager:
 		try: seq = QKeySequence(seq)
 		except: pass
 		t = seqToTuple(seq)
-		log.debug('Registering hotkey {} => {}'.format(t, cb))
+		log.debug('Registering hotkey {} => {}', t, cb)
 		self.hk.register(t, callback=cb)
 	#enddef
 
@@ -55,14 +55,14 @@ class HotkeyManager:
 		try: seq = QKeySequence(seq)
 		except: pass
 		t = seqToTuple(seq)
-		log.debug('Removing hotkey {}'.format(t))
+		log.debug('Removing hotkey {}', t)
 		self.hk.unregister(t)
 	#enddef
 
 	def registerCommand(self, name, function):
 		''' Register a command for use by a hotkey '''
 		if name in self.commands:
-			log.warning('Registering over existing command name %s', name)
+			log.warning('Registering over existing command name {}', name)
 		#endif
 
 		self.commands[name] = function
@@ -73,7 +73,7 @@ class HotkeyManager:
 		''' Add a new hotkey with with a command name intended to be saved to the config '''
 		hks = config.default.get('hotkeys', {})
 		if seq in hks:
-			log.warning('Reassigning existing sequence %s', seq)
+			log.warning('Reassigning existing sequence {}', seq)
 		#endif
 
 		hks[seq] = command
@@ -83,7 +83,7 @@ class HotkeyManager:
 		if command in self.commands:
 			self.register(seq, self.commands[command])
 		else:
-			log.warning('Saved hotkey %s to unknown command %s', seq, command)
+			log.warning('Saved hotkey {} to unknown command {}', seq, command)
 		#endif
 	#enddef
 
@@ -103,7 +103,7 @@ class HotkeyManager:
 			if command in self.commands:
 				self.register(hotkey, self.commands[command])
 			else:
-				log.error('Tried to register hotkey %s to unknown command %s', hotkey, command)
+				log.error('Tried to register hotkey {} to unknown command {}', hotkey, command)
 			#endif
 		#endfor
 	#enddef

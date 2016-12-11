@@ -1,7 +1,7 @@
 ''' Plugin manager '''
 
-import logging, importlib, sys, os, os.path
-log = logging.getLogger(__name__)
+import loggingstyleadapter, importlib, sys, os, os.path
+log = loggingstyleadapter.getLogger(__name__)
 
 class PluginManager:
 	def __init__(self, host):

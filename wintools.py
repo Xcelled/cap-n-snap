@@ -1,5 +1,5 @@
-import logging
-log = logging.getLogger(__name__)
+import loggingstyleadapter
+log = loggingstyleadapter.getLogger(__name__)
 
 import plat
 from PyQt5.QtCore import QRect
