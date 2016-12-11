@@ -3,10 +3,11 @@
 
 DEBUG = True
 
-import logging
+import logging, loggingstyleadapter
 import Colorer
 logging.basicConfig(level=logging.WARN)
-log = logging.getLogger(__name__)
+loggingstyleadapter.NAG = DEBUG
+log = loggingstyleadapter.getLogger(__name__)
 
 if DEBUG: logging.getLogger().setLevel(logging.DEBUG)
 

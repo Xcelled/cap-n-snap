@@ -1,11 +1,11 @@
 ''' Utility for dealing with platform-dependent features '''
-import logging
-log = logging.getLogger(__name__)
+import loggingstyleadapter
+log = loggingstyleadapter.getLogger(__name__)
 
 import platform, importlib
 
-log.info('{} {}'.format(platform.python_implementation(), platform.python_version()))
-log.info('Running on {} {}'.format(platform.platform(), platform.uname()))
+log.info('{} {}', platform.python_implementation(), platform.python_version())
+log.info('Running on {} {}', platform.platform(), platform.uname())
 
 LINUX = MAC = WINDOWS = False
 plat = platform.system().lower()
@@ -14,9 +14,9 @@ elif plat.startswith('darwin'): MAC = True
 elif plat.startswith('linux'): LINUX = True
 
 if True not in (LINUX, MAC, WINDOWS):
-	log.warn('Unsupported platform "{}"'.format(plat))
+	log.warn('Unsupported platform "{}"', plat)
 else:
-	log.info('Detected OS as {}'.format('Linux' if LINUX else ('Windows' if Windows else 'Mac')))
+	log.info('Detected OS as {}', ('Linux' if LINUX else ('Windows' if Windows else 'Mac')))
 
 #endif
 
@@ -26,10 +26,10 @@ def importOrWarn(libname):
 		importlib.import_module(libname)
 		return True
 	except ImportError as e:
-		log.warn('Failed to load {}.'.format(libname))
-		log.warn('Detail: {}'.format(e))
+		log.warn('Failed to load {}.', libname)
+		log.warn('Detail: {}', e)
 	except:
-		log.exception('Unexpected error importing {}.'.format(libname))
+		log.exception('Unexpected error importing {}.', libname)
 	return False
 #enddef
 
@@ -60,4 +60,4 @@ else:
 #endif
 
 feats = dict((attr, getattr(Supports, attr)) for attr in dir(Supports) if not callable(getattr(Supports,attr)) and not attr.startswith("__"))
-log.info('Supported features: {}'.format(feats))
+log.info('Supported features: {}', feats)
