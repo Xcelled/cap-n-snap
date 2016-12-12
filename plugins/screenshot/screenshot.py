@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QApplication
 from .selector import Selector
 import plat
 
-if plat.Supports.wintools: import wintools
+if plat.Supports.windowTools: import wintools
 
 def _captureRegion(x, y, width, height, winId = 0):
 	''' Captures a region '''
@@ -67,8 +67,8 @@ def captureScreen():
 	return _captureRegion(geo.x(), geo.y(), geo.width(), geo.height(), 0).toImage()
 #enddef
 
-def captureWindow(windowId, captureWinBorders):
-	if not plat.Supports.wintools: raise NotImplementedError()
+def captureWindow(captureWinBorders):
+	if not plat.Supports.windowTools: raise NotImplementedError()
 
 	if plat.MAC: captureWinBorders = True
 
