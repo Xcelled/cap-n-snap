@@ -51,10 +51,10 @@ class Config:
 	def load(self):
 		self.execHooks('beforeLoad')
 		if self.filename:
-			log.debug('Loading config from {}', self.filename)
+			log.debug('Loading config from {filename}', filename=self.filename)
 			self.config = json.load(self.filename)
 		else:
-			log.debug('Loading config from {}', self.qsettings.fileName())
+			log.debug('Loading config from {filename}', filename=self.qsettings.fileName())
 			self.qsettings.sync()
 			self.config = json.loads(self.qsettings.value('settings', '{}'))
 		#endif
@@ -64,10 +64,10 @@ class Config:
 	def save(self):
 		self.execHooks('beforeSave')
 		if self.filename:
-			log.debug('Saving config to {}', self.filename)
+			log.debug('Saving config to {filename}', filename=self.filename)
 			json.dump(self.filename, self.config)
 		else:
-			log.debug('Saving config to {}', self.qsettings.fileName())
+			log.debug('Saving config to {filename}', filename=self.qsettings.fileName())
 			self.qsettings.setValue('settings', json.dumps(self.config))
 			self.qsettings.sync()
 		#endif
