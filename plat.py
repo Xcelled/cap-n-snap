@@ -5,7 +5,7 @@ log = loggingstyleadapter.getLogger(__name__)
 import platform, importlib
 
 log.info('{} {}', platform.python_implementation(), platform.python_version())
-log.info('Running on {} {}', platform.platform(), platform.uname())
+log.info('Running on {platform} {uname}', platform=platform.platform(), uname=platform.uname())
 
 LINUX = MAC = WINDOWS = False
 plat = platform.system().lower()
@@ -14,9 +14,9 @@ elif plat.startswith('darwin'): MAC = True
 elif plat.startswith('linux'): LINUX = True
 
 if True not in (LINUX, MAC, WINDOWS):
-	log.warn('Unsupported platform "{}"', plat)
+	log.warn('Unsupported platform "{platform}"', platform=plat)
 else:
-	log.info('Detected OS as {}', ('Linux' if LINUX else ('Windows' if Windows else 'Mac')))
+	log.info('Detected OS as {os}', os=('Linux' if LINUX else ('Windows' if WINDOWS else 'Mac')))
 
 #endif
 
@@ -26,10 +26,10 @@ def importOrWarn(libname):
 		importlib.import_module(libname)
 		return True
 	except ImportError as e:
-		log.warn('Failed to load {}.', libname)
-		log.warn('Detail: {}', e)
+		log.warn('Failed to load {library}.', library=libname)
+		log.warn('Detail: {error}', error=e)
 	except:
-		log.exception('Unexpected error importing {}.', libname)
+		log.exception('Unexpected error importing {library}.', library=libname)
 	return False
 #enddef
 
@@ -60,4 +60,4 @@ else:
 #endif
 
 feats = dict((attr, getattr(Supports, attr)) for attr in dir(Supports) if not callable(getattr(Supports,attr)) and not attr.startswith("__"))
-log.info('Supported features: {}', feats)
+log.info('Supported features: {features}', features=feats)

@@ -23,9 +23,9 @@ class StyleAdapter(logging.LoggerAdapter):
 
 	def log(self, level, msg, *args, **kwargs):
 		if NAG and re.search(r'%(\(\w+\))?[#0\-\+ ]?(\.\d+)?[diouxXeEfFgGcRsa%]', msg):
-			stack = traceback.extract_stack()[-3]
-			log.debug('FIXME: Old style string interpolation used in {} @ {}:{}. Text: "{}"',
-				stack[2], os.path.relpath(stack[0]), stack[1], stack[3])
+			filename, line, method, text = traceback.extract_stack()[-3]
+			log.debug('FIXME: Old style string interpolation used in {method} @ {filename}:{line}. Text: "{text}"',
+				method=method, filename=os.path.relpath(filename), line=line, text=text)
 		if self.isEnabledFor(level):
 			msg, log_kwargs = self.process(msg, kwargs)
 			self.logger._log(level, BraceMessage(msg, args, kwargs), (), 
