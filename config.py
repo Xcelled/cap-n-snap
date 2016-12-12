@@ -1,8 +1,8 @@
 #-*- coding:utf-8 -*-
 
-import os, json, plat, logging, hotkeys
+import os, json, plat, loggingstyleadapter, hotkeys
 from PyQt5.QtCore import QSettings
-log = logging.getLogger(__name__)
+log = loggingstyleadapter.getLogger(__name__)
 
 class Config:
 	def __init__(self, filename=None):
@@ -51,10 +51,10 @@ class Config:
 	def load(self):
 		self.execHooks('beforeLoad')
 		if self.filename:
-			log.debug('Loading config from %s', self.filename)
+			log.debug('Loading config from {filename}', filename=self.filename)
 			self.config = json.load(self.filename)
 		else:
-			log.debug('Loading config from %s', self.qsettings.fileName())
+			log.debug('Loading config from {filename}', filename=self.qsettings.fileName())
 			self.qsettings.sync()
 			self.config = json.loads(self.qsettings.value('settings', '{}'))
 		#endif
@@ -64,10 +64,10 @@ class Config:
 	def save(self):
 		self.execHooks('beforeSave')
 		if self.filename:
-			log.debug('Saving config to %s', self.filename)
+			log.debug('Saving config to {filename}', filename=self.filename)
 			json.dump(self.filename, self.config)
 		else:
-			log.debug('Saving config to %s', self.qsettings.fileName())
+			log.debug('Saving config to {filename}', filename=self.qsettings.fileName())
 			self.qsettings.setValue('settings', json.dumps(self.config))
 			self.qsettings.sync()
 		#endif
