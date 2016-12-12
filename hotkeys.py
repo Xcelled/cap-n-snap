@@ -111,19 +111,19 @@ class HotkeyManager:
 
 		hks = config.default.get('hotkeys', {})
 		if seq in hks:
-			log.warning('Reassigning existing sequence "{hotkey}"', hotkey=seq.toString())
+			log.warning('Reassigning existing sequence "{hotkey}"', hotkey=seq)
 		#endif
 
 		hks[seq] = command
 		config.default.set('hotkeys', hks)
 		config.default.save() # TODO: Move this to settings UI?
 
-		log.debug('Attempting to bind "{sequence}"', sequence=seq.toString())
+		log.debug('Attempting to bind "{sequence}"', sequence=seq)
 
 		if command in self.commands:
 			return self._bind(seq, self.commands[command])
 		else:
-			log.warning('Saved hotkey "{hotkey}" to unknown command "{command}"', hotkey=seq.toString(), command=command)
+			log.warning('Saved hotkey "{hotkey}" to unknown command "{command}"', hotkey=seq, command=command)
 
 		return True
 		#endif
