@@ -1,5 +1,5 @@
-import logging
-log = logging.getLogger(__name__)
+import loggingstyleadapter
+log = loggingstyleadapter.getLogger(__name__)
 
 from system_hotkey import SystemHotkey, SystemRegisterError, UnregisterError, InvalidKeyError
 from collections import Counter
@@ -53,10 +53,10 @@ class HotkeyManager:
 		except: pass
 
 		t = seqToTuple(seq)
-		log.debug('Binding hotkey {} => {}'.format(t, cb))
+		log.debug('Binding hotkey "{hotkey}" => {callback}', hotkey=seq.toString(), callback=cb)
 		
 		try: self.hk.register(t, callback=lambda e:cb())
-		except SystemRegisterError: log.exception('Failed to bind hotkey {}'.format(seq.toString()))
+		except SystemRegisterError: log.exception('Failed to bind hotkey "{hotkey}"', hotkey=seq.toString())
 		else: return True
 
 		return False
@@ -68,12 +68,12 @@ class HotkeyManager:
 		except: pass
 
 		t = seqToTuple(seq)
-		log.debug('Unbinding hotkey {}'.format(t))
+		log.debug('Unbinding hotkey "{hotkey}"', hotkey=seq.toString())
 
 		try: self.hk.unregister(t)
 		except InvalidKeyError: 
-			if not quiet: log.warn('Tried to unbind nonexistent hotkey {}'.format(seq.toString()))
-		except UnregisterError as e: log.exception('Failed to unbind hotkey {}'.format(seq.toString()))
+			if not quiet: log.warn('Tried to unbind nonexistent hotkey "{hotkey}"', hotkey=seq.toString())
+		except UnregisterError as e: log.exception('Failed to unbind hotkey "{hotkey}"', hotkey=seq.toString())
 		else: return True
 
 		return False
@@ -82,12 +82,12 @@ class HotkeyManager:
 	def registerCommand(self, name, function):
 		''' Register a command that the user can bind with a hotkey '''
 		if name in self.commands:
-			log.warning('Registering over existing command name %s', name)
+			log.warning('Registering over existing command name "{command}"', command=name)
 		#endif
 
 		self.commands[name] = function
 
-		log.debug('Registered command {} for {}'.format(name, function))
+		log.debug('Registered command "{name}" for {function}', name=name, function=function)
 	#enddef
 
 	# TODO: These should directly use QKeySequence in the config
@@ -102,7 +102,6 @@ class HotkeyManager:
 
 		return seq.toString in config.default.get('hotkeys', {})
 	#enddef
-
 	def add(self, seq, command):
 		''' Add a new hotkey with with a command name intended to be saved to the config '''
 		try: seq = QKeySequence(seq)
@@ -112,19 +111,19 @@ class HotkeyManager:
 
 		hks = config.default.get('hotkeys', {})
 		if seq in hks:
-			log.warning('Reassigning existing sequence %s', seq)
+			log.warning('Reassigning existing sequence "{hotkey}"', hotkey=seq.toString())
 		#endif
 
 		hks[seq] = command
 		config.default.set('hotkeys', hks)
 		config.default.save() # TODO: Move this to settings UI?
 
-		log.debug('Attempting to bind %s', seq)
+		log.debug('Attempting to bind "{sequence}"', sequence=seq.toString())
 
 		if command in self.commands:
 			return self._bind(seq, self.commands[command])
 		else:
-			log.warning('Saved hotkey %s to unknown command %s', seq, command)
+			log.warning('Saved hotkey "{hotkey}" to unknown command "{command}"', hotkey=seq.toString(), command=command)
 
 		return True
 		#endif
@@ -144,13 +143,14 @@ class HotkeyManager:
 
 	def applyHotkeys(self):
 		''' Apply all hotkeys defined in the config '''
+		log.info('Applying hotkeys')
 		toRemove = []
 		for hotkey, command in config.default.get('hotkeys', {}).items():
 			if command in self.commands:
 				self._bind(hotkey, self.commands[command])
 			else:
 				toRemove.append(hotkey)
-				log.error('Tried to bind hotkey %s to unknown command %s', hotkey, command)
+				log.error('Tried to bind hotkey "{hotkey}" to unknown command "{command}"', hotkey=hotkey, command=command)
 			#endif
 		#endfor
 
@@ -159,7 +159,7 @@ class HotkeyManager:
 
 	def removeHotkeys(self):
 		''' Remove all hotkeys defined in the config '''
-		if not plat.Supports.hotkeys: return
+		log.info('Removing all hotkeys')
 
 		for hotkey, command in config.default.get('hotkeys', {}).items():
 			self._unbind(hotkey)

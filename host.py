@@ -1,5 +1,5 @@
-import logging
-log = logging.getLogger(__name__)
+import loggingstyleadapter
+log = loggingstyleadapter.getLogger(__name__)
 
 import hotkeys
 
@@ -19,7 +19,7 @@ class Host:
 			if not hk.commandHasHotkey(name) and not hk.hasHotkey(defaultHotkey):
 				hk.add(defaultHotkey, name)
 			else:
-				log.info('Not registering default hotkey for %s (in use or already assigned)', name)
+				log.info('Not registering default hotkey for "{name}" (in use or already assigned)', name=name)
 			#endif
 		#endif
 	#enddef
