@@ -12,16 +12,16 @@ if plat.LINUX:
 		return ewmh.get_active_window().reply()
 	#endif
 
-	def getWinGeomtry(wid, skip=0, **kwargs):
+	def getWinGeometry(wid, skip=0, **kwargs):
 		''' Gets the window geometry of the window.
 
-		Skip controls howe many extra parents we should go to to get the gemorty.
+		Skip controls howe many extra parents we should go to to get the geometry.
 		In most window managers, this should be zero (ie, decorations are the parent of wid).
 		However, at least one (KWin) introduces an extra parent window, so the decorations
 		are actually the grandparent of the wid. In this case, skip should be 1. '''
 		for i in range(skip): wid = window.get_parent_window(wid)
 
-		geo = window.get_geomtry(wid).reply() # x, y, w, h
+		geo = window.get_geometry(wid).reply() # x, y, w, h
 		return QRect(*geo)
 	#enddef
 elif plat.WINDOWS:

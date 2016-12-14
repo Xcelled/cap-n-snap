@@ -76,7 +76,7 @@ def captureWindow(captureWinBorders):
 
 	if captureWinBorders:
 		# TODO: If KDE...
-		geo = wintools.getWinGeomtry(activeWin)
+		geo = wintools.getWinGeometry(activeWin)
 		return _captureRegion(geo.x(), geo.y(), geo.width(), geo.height(), 0).toImage()
 	#endif
 
