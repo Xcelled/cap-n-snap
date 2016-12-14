@@ -1,9 +1,8 @@
 import loggingstyleadapter
 log = loggingstyleadapter.getLogger(__name__)
 
-from system_hotkey import SystemHotkey, SystemRegisterError, UnregisterError, InvalidKeyError
-from collections import Counter
-from PyQt5.QtCore import Qt
+from system_hotkey import SystemHotkey, SystemRegisterError, UnregisterError
+from PyQt5.QtCore import Qt, QObject, pyqtSignal
 from PyQt5.QtGui import QKeySequence
 
 import config
@@ -30,11 +29,44 @@ def seqToTuple(seq):
 	return tuple(r)
 #enddef
 
-class HotkeyManager:
+class HotkeyManager(QObject):
 	''' Minimal interface adapter for global hotkeys '''
+	
+	# This class may seem confusing at first. The complexity is due to Qt.
+	# Qt's system doesn't like it when qt functions are preformed on anything
+	# other than the main thread. This is a problem for system hotkey, which
+	# always invokes callbacks on a different thread. So, this class sets up
+	# a Qt signal and slot, and uses this to marshal the SHK callback onto
+	# the main Qt thread, which then invokes the command bound to the hotkey.
+
+	# Key points: _hotkeyPressed receives callback from SHK. It emits
+	# _commandInvoked with the name of the command. _invokeCommand is
+	# connected to this signal. It receives the command name, looks up
+	# the *actual* command callback in the dictionary and invokes it.
+
+	# Signal that indicates when a command-invoking hotkey was pressed
+	_commandInvoked = pyqtSignal(str) 
+
 	def __init__(self):
-		self.hk = SystemHotkey()
+		super().__init__()
+		self.hk = SystemHotkey(consumer=self._hotkeyPressed)
 		self.commands = {}
+		self._commandInvoked.connect(self._invokeCommand)
+	#enddef
+
+	def _hotkeyPressed(self, event, hotkey, args):
+		''' Adapts the global callback from system hotkey into a signal '''
+		self._commandInvoked.emit(args[0][0])
+	#enddef
+
+	def _invokeCommand(self, commandName):
+		func = self.commands.get(commandName, None)
+		if func:
+			log.debug('Got hotkey invocation for "{command}" => {func}', command=commandName, func=func)
+			func()
+		else:
+			log.warn('Hotkey triggered unknown command "{command}"', command=commandName)
+		#endif
 	#enddef
 
 	def load(self):
@@ -44,8 +76,8 @@ class HotkeyManager:
 		self.applyHotkeys()
 	#enddef
 
-	def _bind(self, seq, cb):
-		''' Binds a hotkey to a callback function.
+	def _bind(self, seq, cmd):
+		''' Binds a hotkey to a command name.
 
 		seq can either be a QKeySequence or a string parseable by QKeySequence
 		eg "ctrl+shift+k" '''
@@ -53,9 +85,9 @@ class HotkeyManager:
 		except: pass
 
 		t = seqToTuple(seq)
-		log.debug('Binding hotkey "{hotkey}" => {callback}', hotkey=seq.toString(), callback=cb)
+		log.debug('Binding hotkey "{hotkey}" => "{command}"', hotkey=seq.toString(), command=cmd)
 		
-		try: self.hk.register(t, callback=lambda e:cb())
+		try: self.hk.register(t, cmd)
 		except SystemRegisterError: log.exception('Failed to bind hotkey "{hotkey}"', hotkey=seq.toString())
 		else: return True
 
@@ -71,9 +103,8 @@ class HotkeyManager:
 		log.debug('Unbinding hotkey "{hotkey}"', hotkey=seq.toString())
 
 		try: self.hk.unregister(t)
-		except InvalidKeyError: 
+		except UnregisterError: 
 			if not quiet: log.warn('Tried to unbind nonexistent hotkey "{hotkey}"', hotkey=seq.toString())
-		except UnregisterError as e: log.exception('Failed to unbind hotkey "{hotkey}"', hotkey=seq.toString())
 		else: return True
 
 		return False
@@ -146,7 +177,7 @@ class HotkeyManager:
 		toRemove = []
 		for hotkey, command in config.default.get('hotkeys', {}).items():
 			if command in self.commands:
-				self._bind(hotkey, self.commands[command])
+				self._bind(hotkey, command)
 			else:
 				toRemove.append(hotkey)
 				log.error('Tried to bind hotkey "{hotkey}" to unknown command "{command}"', hotkey=hotkey, command=command)
