@@ -100,8 +100,9 @@ class HotkeyManager:
 		try: seq = QKeySequence(seq)
 		except: pass
 
-		return seq.toString in config.default.get('hotkeys', {})
+		return seq.toString() in config.default.get('hotkeys', {})
 	#enddef
+
 	def add(self, seq, command):
 		''' Add a new hotkey with with a command name intended to be saved to the config '''
 		try: seq = QKeySequence(seq)
@@ -120,13 +121,11 @@ class HotkeyManager:
 
 		log.debug('Attempting to bind "{sequence}"', sequence=seq)
 
-		if command in self.commands:
-			return self._bind(seq, self.commands[command])
-		else:
+		if command not in self.commands:
 			log.warning('Saved hotkey "{hotkey}" to unknown command "{command}"', hotkey=seq, command=command)
+		#endif
 
 		return True
-		#endif
 	#enddef
 
 	def remove(self, seq):
