@@ -1,8 +1,11 @@
 ''' Module containing screenshot functions '''
+import loggingstyleadapter
+log = loggingstyleadapter.getLogger(__name__)
+
 from PyQt5.QtCore import QRect
 from PyQt5.QtGui import QColor, QImage, QPainter, QPixmap, QCursor
 from PyQt5.QtWidgets import QApplication
-from .selector import Selector
+from .selector import RegionSelector
 import plat
 
 if plat.Supports.windowTools: import wintools
@@ -84,15 +87,20 @@ def captureWindow(captureWinBorders):
 #end def
 
 def captureRegion():
+	screens = [(g.x(), g.y(), g.width(), g.height()) for g in (s.geometry() for s in QApplication.screens())]
+
+	log.debug('Screens: {}', screens)
+
 	x, y, w, h = _getDesktopBounds()
 	pixmap = _captureRegion(x, y, w, h, 0)
 	
-	sel = Selector(x, y, w, h, pixmap)
+	log.debug('Opening region select window at {x}, {y} with dims {w}, {h}', x=x, y=y, w=w, h=h)
+	sel = RegionSelector(x, y, w, h, pixmap)
 	sel.exec_()
 
-	toCopy = sel.selection()
+	toCopy = sel.selection
 
 	if toCopy is None: return None
 
-	return pixmap.copy(toCopy).toImage()
+	return pixmap.copy(toCopy.toRect()).toImage()
 #enddef
