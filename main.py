@@ -26,7 +26,8 @@ app = QApplication(sys.argv)
 
 # Add kill-switch for development testing
 if DEBUG and plat.Supports.hotkeys:
-	hotkeys.default._bind('ctrl+shift+k', lambda:app.exit())
+	hotkeys.default.registerCommand('kill', app.exit)
+	hotkeys.default._bind('ctrl+shift+k', 'kill')
 #endif
 
 plugHost = Host()
