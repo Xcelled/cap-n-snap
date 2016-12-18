@@ -12,10 +12,9 @@ class RegionSelector:
 	'''Class to handle coordinating multiple selector windows for a multimonitor setup. '''
 
 	def __init__(self, x, y, w, h, pixmap):
-		self.selectionStart = None
 		self.moving = self.drawing = self.resizing = False
 
-		self.maxSelection = QRectF(x, y, w, h)
+		self.bounds = QRectF(x, y, w, h)
 		self.selectors = []
 		self.selection = None
 		for screen in QApplication.screens():
@@ -49,20 +48,35 @@ class RegionSelector:
 			self.selectionStart = pos
 		#elif in corner
 		#elif on line
-		#else #in
+		else: # in
+			self.moving = True
+			self.selBeforeMove = self.selection
+			self.moveOrigin = pos
 		#endif
 		self.updateSelection()
 	#enddef
 
 	def mouseMoveEvent(self, e):
+		pos = e.globalPos()
 		if self.drawing:
-			pos = e.globalPos()
 			if pos.x() != self.selectionStart.x() and pos.y() != self.selectionStart.y():
-				self.selection = QRectF(
-										QPointF(self.selectionStart), QPointF(pos)
-										).normalized().intersected(self.maxSelection)
+				self.selection = QRectF(QPointF(self.selectionStart), QPointF(pos)).normalized()
+				self.selection = self.selection.intersected(self.bounds)
 				self.updateSelection()
 			#endif
+		elif self.moving:
+			delta = pos - self.moveOrigin
+			moved = self.selBeforeMove.translated(delta)
+
+			# TODO: this cause the bounds to be "sticky", since trying to move back after pushing it 50px off the edge
+			# means we must re-traverse the other 49 "off screen" pixels before we get some visible movement
+			minX, maxX = self.bounds.x(), self.bounds.x() + self.bounds.width() - moved.width()
+			minY, maxY = self.bounds.y(), self.bounds.y() + self.bounds.height() - moved.height()
+
+			moved.moveTo(min(max(minX, moved.x()), maxX), min(max(minY, moved.y()), maxY))
+
+			self.selection = moved.intersected(self.bounds)
+			self.updateSelection()
 		#endif
 	#enddef
 
