@@ -12,7 +12,7 @@ class RegionSelector:
 	'''Class to handle coordinating multiple selector windows for a multimonitor setup. '''
 
 	def __init__(self, x, y, w, h, pixmap):
-		self.selectionStart, self.selectionEnd = None, None
+		self.selectionStart = None
 		self.moving = self.drawing = self.resizing = False
 
 		self.maxSelection = QRectF(x, y, w, h)
@@ -29,24 +29,13 @@ class RegionSelector:
 
 	def exec_(self):
 		cPos = QCursor.pos()
-		QCursor.setPos(0, 0)
+		QCursor.setPos(0, 0) # XFCE workaround. In XCFE, window position is relative to the cursor position
 		for sel in self.selectors: sel.show()
 		QCursor.setPos(cPos)
 		self.selectors[-1].exec_()
 	#enddef
 
-	def _getSelection(self):
-		if self.selectionStart is None or self.selectionEnd is None: return None
-		if self.selectionStart.x() == self.selectionEnd.x(): return None
-		if self.selectionStart.y() == self.selectionEnd.y(): return None
-
-		selRect = QRectF(QPointF(self.selectionStart), QPointF(self.selectionEnd)).normalized()
-
-		return selRect.intersected(self.maxSelection) # So we can't go outside the bounds
-	#enddef
-
 	def updateSelection(self):
-		self.selection = self._getSelection()
 		for s in self.selectors: s.updateSelection()
 	#enddef
 
@@ -56,7 +45,8 @@ class RegionSelector:
 		
 		if self.selection is None or not self.selection.contains(pos):
 			self.drawing = True
-			self.selectionStart = self.selectionEnd = pos
+			self.selection = None
+			self.selectionStart = pos
 		#elif in corner
 		#elif on line
 		#else #in
@@ -66,8 +56,13 @@ class RegionSelector:
 
 	def mouseMoveEvent(self, e):
 		if self.drawing:
-			self.selectionEnd = e.globalPos()
-			self.updateSelection()
+			pos = e.globalPos()
+			if pos.x() != self.selectionStart.x() and pos.y() != self.selectionStart.y():
+				self.selection = QRectF(
+										QPointF(self.selectionStart), QPointF(pos)
+										).normalized().intersected(self.maxSelection)
+				self.updateSelection()
+			#endif
 		#endif
 	#enddef
 
@@ -79,10 +74,9 @@ class RegionSelector:
 
 	def keyReleaseEvent(self, event):
 		if event.key() == Qt.Key_Escape:
-			self.selectionStart = self.selectionEnd = None
+			self.selection = None
 			self.close()
 		elif event.key() in (Qt.Key_Enter, Qt.Key_Return):
-			self.selection = self._getSelection()
 			if self.selection:
 				self.close()
 			#endif
