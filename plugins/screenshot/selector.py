@@ -178,7 +178,7 @@ class OccultingRubberband(QGraphicsView):
 		self.lines = [QGraphicsLineItem() for i in range(4)]
 		for l, cursor in zip(self.lines, [Qt.SizeHorCursor, Qt.SizeVerCursor]*2):
 			l.setPen(QPen(lineColor, 2))
-			l.setCursor(cursor)
+			#l.setCursor(cursor)
 			self.selectionView.addToGroup(l)
 		#endfor
 
@@ -187,7 +187,7 @@ class OccultingRubberband(QGraphicsView):
 			c.setBrush(QBrush(occultColor))
 			c.setPen(QPen(lineColor, 2))
 			c.setCursor(cursor)
-			self.selectionView.addToGroup(c)
+			#self.selectionView.addToGroup(c)
 		#endfor
 
 		# Displayed when there's no selection
