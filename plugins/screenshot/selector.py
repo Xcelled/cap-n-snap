@@ -243,6 +243,7 @@ class OccultingRubberband(QGraphicsView):
 
 		self.drawingOverlay.setVisible(self.region.drawing)
 		if self.region.drawing: self.helpOverlay.setVisible(False)
+		self.setCursor(Qt.ClosedHandCursor if self.region.moving else Qt.OpenHandCursor)
 
 		if selection is None or not selection.intersects(geo):
 			self.selectionView.setVisible(False)
