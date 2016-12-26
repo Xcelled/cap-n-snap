@@ -1,3 +1,4 @@
+<img align="right" src="img/captain.png"/>
 # Cap'n Snap
 
 Cross-platform quick-share utility similar to puush or screencloud.
