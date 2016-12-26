@@ -15,7 +15,6 @@ import sys, os, plat, config
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QApplication
 from plugins import PluginManager
-from host import Host
 
 if plat.Supports.hotkeys: import hotkeys
 
@@ -32,9 +31,9 @@ if DEBUG and plat.Supports.hotkeys:
 #endif
 
 import systray
-
 systray.show()
 
+from host import Host
 plugHost = Host()
 
 pm = PluginManager(plugHost)

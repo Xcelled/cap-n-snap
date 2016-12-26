@@ -1,6 +1,7 @@
 ''' cap n snap plugin to capture the screen '''
 from . import screenshot
 from PyQt5.QtCore import QMimeData, QMimeDatabase
+from PyQt5.QtWidgets import QMenu
 
 mimedb = QMimeDatabase()
 pngType = mimedb.mimeTypeForName('image/png') # TODO: More...
@@ -12,6 +13,15 @@ class ScreenshotPlugin:
 		host.registerCommand('screenshot_selection', self.captureRegion, "shift+alt+2")
 		host.registerCommand('screenshot_window', self.captureWindow, "shift+alt+3")
 		host.registerCommand('screenshot_screen', self.captureScreen, "shift+alt+4")
+
+		menu = QMenu('Screenshot...')
+		menu.addAction('Desktop', self.captureDesktop)
+		menu.addAction('Selection', self.captureRegion)
+		menu.addAction('Window', self.captureWindow)
+		menu.addAction('Screen', self.captureScreen)
+
+		host.addMenu(menu)
+		self.menu = menu
 	#enddef
 
 	def sendToHost(self, img):

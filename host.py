@@ -2,7 +2,7 @@ import loggingstyleadapter
 log = loggingstyleadapter.getLogger(__name__)
 
 from PyQt5.QtGui import QKeySequence
-import hotkeys, plat
+import hotkeys, plat, systray
 
 class Host:
 	def __init__(self):
@@ -36,5 +36,15 @@ class Host:
 	def store(self, data, type, **kwargs):
 		''' Stores the given data '''
 		print('Implement me (store) for cool stuff!')
+	#enddef
+
+	def addMenuItem(self, action):
+		''' Adds an action to the system tray menu '''
+		return systray.addPluginItem(action)
+	#enddef
+
+	def addMenu(self, menu):
+		''' Adds a submenu to the system tray menu '''
+		return systray.addPluginMenu(menu)
 	#enddef
 #endclass

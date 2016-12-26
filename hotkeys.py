@@ -137,6 +137,7 @@ if plat.Supports.hotkeys:
 		#enddef
 
 		# TODO: These should directly use QKeySequence in the config
+
 		def commandHasHotkey(self, command):
 			''' Checks if the given command has a hotkey registered for it '''
 			return not self.hotkeyForCommand(command).isEmpty()
