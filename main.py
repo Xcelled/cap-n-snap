@@ -23,6 +23,7 @@ if plat.Supports.hotkeys: import hotkeys
 here = os.path.abspath(os.path.dirname(__file__))
 
 app = QApplication(sys.argv)
+app.setQuitOnLastWindowClosed(False)
 
 # Add kill-switch for development testing
 if DEBUG and plat.Supports.hotkeys:
