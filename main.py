@@ -31,6 +31,10 @@ if DEBUG and plat.Supports.hotkeys:
 	hotkeys.default._bind('ctrl+shift+k', 'kill')
 #endif
 
+import systray
+
+systray.show()
+
 plugHost = Host()
 
 pm = PluginManager(plugHost)
