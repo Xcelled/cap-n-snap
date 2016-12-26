@@ -1,7 +1,8 @@
 import loggingstyleadapter
 log = loggingstyleadapter.getLogger(__name__)
 
-import hotkeys
+from PyQt5.QtGui import QKeySequence
+import hotkeys, plat
 
 class Host:
 	def __init__(self):
@@ -15,12 +16,20 @@ class Host:
 	def registerCommand(self, name, callback, defaultHotkey=None):
 		hk = hotkeys.default
 		hk.registerCommand(name, callback)
-		if defaultHotkey:
+		if defaultHotkey and plat.Supports.hotkeys:
 			if not hk.commandHasHotkey(name) and not hk.hasHotkey(defaultHotkey):
 				hk.add(defaultHotkey, name)
 			else:
 				log.info('Not registering default hotkey for "{name}" (in use or already assigned)', name=name)
 			#endif
+		#endif
+	#enddef
+
+	def getHotkeyForCommand(self, cmd):
+		if plat.Supports.hotkeys:
+			return hotkeys.default.hotkeyForCommand(cmd)
+		else:
+			return QKeySequence()
 		#endif
 	#enddef
 
