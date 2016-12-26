@@ -48,7 +48,7 @@ if LINUX:
 		Supports.windowTools = False
 	#endi
 elif WINDOWS:
-	pywin32 = importOrWarn('pywin32')
+	pywin32 = importOrWarn('win32')
 	if not pywin32:
 		log.warn('Hotkeys are disabled.')
 		Supports.hotkeys = False
