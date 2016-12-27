@@ -11,21 +11,11 @@ class ClipboardDestination:
 		self.icon = QImage.fromData(icon)
 	#enddef
 
-	def handles(self, data):
+	def handles(self, type):
 		return True # Clippy handles everything
 	#enddef
 
-	def store(self, data):
+	def store(self, data, type, **kwargs):
 		QApplication.clipboard.setMimeData(data)
 	#enddef
 #enddef
-
-class ClipboardSource:
-	def __init__(self):
-		pass
-	#enddef
-
-	def capture(self):
-		return QApplication.clipboard.mimeData()
-	#enddef
-#endclass
