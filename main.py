@@ -11,6 +11,8 @@ log = loggingstyleadapter.getLogger(__name__)
 
 if DEBUG: logging.getLogger().setLevel(logging.DEBUG)
 
+import pyqt_hotfixes
+
 import sys, os, plat, config
 from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import QApplication
