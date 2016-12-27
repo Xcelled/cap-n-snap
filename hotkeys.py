@@ -2,6 +2,8 @@ import loggingstyleadapter
 log = loggingstyleadapter.getLogger(__name__)
 
 import config, plat
+from PyQt5.QtCore import Qt, QObject, pyqtSignal
+from PyQt5.QtGui import QKeySequence
 
 class HotkeyManagerBase:
 	def __init__(self):
@@ -36,10 +38,35 @@ class HotkeyManagerBase:
 	#enddef
 #endclass
 
+class GlobalHotkeyMixinBase(QObject):
+	''' Defines the required interface for all global hotkey providers,
+	as well as provides dummy implementations for them, which are used
+	if the current system doesn't support hotkeys '''
+
+	hotkeyAssigned = pyqtSignal([str, QKeySequence]) # Raised when a hotkey is assigned (or re-assigned). Args: cmd, seq
+	hotkeyRemoved = pyqtSignal(str) # Raised when a hotkey is unassigned. Args: cmd
+
+	def __init__(self):
+		super().__init__()
+	#enddef
+
+	def commandHasHotkey(self, command):
+		''' Checks if the given command has a hotkey registered for it '''
+		return not self.hotkeyForCommand(command).isEmpty()
+	#enddef
+
+	def hotkeyForCommand(self, command): return QKeySequence()
+	
+	def hasHotkey(self, command): return False
+
+	def add(self, seq, command): pass
+
+	def remove(self, seq): pass
+#endclass
+
+
 if plat.Supports.hotkeys:
 	from system_hotkey import SystemHotkey, SystemRegisterError, UnregisterError
-	from PyQt5.QtCore import Qt, QObject, pyqtSignal
-	from PyQt5.QtGui import QKeySequence
 
 	modMap = list(zip(
 		[Qt.ShiftModifier, Qt.ControlModifier, Qt.AltModifier, Qt.MetaModifier],
@@ -63,7 +90,7 @@ if plat.Supports.hotkeys:
 		return tuple(r)
 	#enddef
 
-	class ShkAdapterMixin(QObject):
+	class ShkAdapterMixin(GlobalHotkeyMixinBase):
 		''' Minimal interface adapter for global hotkeys '''
 		
 		# This class may seem confusing at first. The complexity is due to Qt.
@@ -137,12 +164,6 @@ if plat.Supports.hotkeys:
 		#enddef
 
 		# TODO: These should directly use QKeySequence in the config
-
-		def commandHasHotkey(self, command):
-			''' Checks if the given command has a hotkey registered for it '''
-			return not self.hotkeyForCommand(command).isEmpty()
-		#enddef
-
 		def hotkeyForCommand(self, command):
 			for seq, cmd in config.default.get('hotkeys', {}).items():
 				if cmd == command: return QKeySequence(seq)
@@ -163,21 +184,22 @@ if plat.Supports.hotkeys:
 			try: seq = QKeySequence(seq)
 			except: pass
 
-			seq = seq.toString() # TODO: Removed this (use kyseq directly). UPDATE LOGS when you do (toString)
+			seqStr = seq.toString() # TODO: Removed this (use kyseq directly). UPDATE LOGS when you do (toString)
 
 			hks = config.default.get('hotkeys', {})
-			if seq in hks:
-				log.warning('Reassigning existing sequence "{hotkey}"', hotkey=seq)
+			if seqStr in hks:
+				log.warning('Reassigning existing sequence "{hotkey}"', hotkey=seqStr)
 			#endif
 
-			hks[seq] = command
+			hks[seqStr] = command
+			self.hotkeyAssigned.emit(command, seq)
 			config.default.set('hotkeys', hks)
 			config.default.save() # TODO: Move this to settings UI?
 
-			log.debug('Attempting to bind "{sequence}"', sequence=seq)
+			log.debug('Attempting to bind "{sequence}"', sequence=seqStr)
 
 			if command not in self.commands:
-				log.warning('Saved hotkey "{hotkey}" to unknown command "{command}"', hotkey=seq, command=command)
+				log.warning('Saved hotkey "{hotkey}" to unknown command "{command}"', hotkey=seqStr, command=command)
 			#endif
 
 			return True
@@ -185,14 +207,20 @@ if plat.Supports.hotkeys:
 
 		def remove(self, seq):
 			''' Remove a hotkey from the config '''
+			try: seq = QKeySequence(seq)
+			except: pass
+
+			seqStr = seq.toString() # TODO: Removed this (use kyseq directly). UPDATE LOGS when you do (toString)
+
 			hks = config.default.get('hotkeys', {})
-			try: del hks[seq]
+			try: del hks[seqStr]
 			except KeyError: pass
 			else:
+				self.hotkeyRemoved.emit(seq)
 				return self._unbind(seq)
+			#entry
 
 			return False
-			#endtry
 		#enddef
 
 		def applyHotkeys(self):
@@ -223,7 +251,7 @@ if plat.Supports.hotkeys:
 	
 	class HotkeyManager(ShkAdapterMixin, HotkeyManagerBase): pass
 else:
-	class HotkeyManager(HotkeyManagerBase): pass
+	class HotkeyManager(HotkeyManagerBase, GlobalHotkeyMixinBase): pass
 #endif
 
 
