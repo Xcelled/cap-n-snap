@@ -15,10 +15,10 @@ class ScreenshotPlugin:
 		host.registerCommand('screenshot_screen', self.captureScreen, "shift+alt+4")
 
 		menu = QMenu('Screenshot...')
-		menu.addAction('Desktop', self.captureDesktop)
-		menu.addAction('Selection', self.captureRegion)
-		menu.addAction('Window', self.captureWindow)
-		menu.addAction('Screen', self.captureScreen)
+		menu.addAction('Desktop', self.captureDesktop, host.getHotkeyForCommand('screenshot_desktop'))
+		menu.addAction('Selection', self.captureRegion, host.getHotkeyForCommand('screenshot_selection'))
+		menu.addAction('Window', self.captureWindow, host.getHotkeyForCommand('screenshot_window'))
+		menu.addAction('Screen', self.captureScreen, host.getHotkeyForCommand('screenshot_screen'))
 
 		host.addMenu(menu)
 		self.menu = menu
